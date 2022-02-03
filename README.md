@@ -13,7 +13,7 @@ Created using React/Golang
 
 
 ## Tech 
--Typescript \
--React \ 
--Golang \ 
+-Typescript\
+-React\ 
+-Golang\ 
 -MongoDB
