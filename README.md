@@ -3,13 +3,13 @@ A Ticketing system capable of tracking bugs across multiple software engineering
 Created using React/Golang
 
 ## Features
--Authentication - [ ]
--Client web Dashboard - [ ]
--CRUD Functionality - [ ]
-  -Assigning users to projects - [ ]
-  -Project managment - [ ]
-  -Ticket managment - [ ]
-  -Personal Feed - [ ]
+-Authentication - [ ] \
+-Client web Dashboard - [ ] \
+-CRUD Functionality - [ ] \
+  -Assigning users to projects - [ ] \
+  -Project managment - [ ] \
+  -Ticket managment - [ ] \
+  -Personal Feed - [ ] \
 
 
 ## Tech 
