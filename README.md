@@ -1,4 +1,4 @@
-#bug-tracker
+# bug-tracker
 
 A Ticketing system capable of tracking bugs across multiple software engineering projects. Users can be assinged by an admins to multiple project areas.
 Created using React/Golang
