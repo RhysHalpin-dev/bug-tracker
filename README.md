@@ -3,17 +3,17 @@ A Ticketing system capable of tracking bugs across multiple software engineering
 Created using React/Golang
 
 ## Features
-* Authentication - [x]s \
-* Client web Dashboard - [ ] \
-* CRUD Functionality - [ ] \
-  - Assigning users to projects - [ ] \
-  - Project managment - [ ] \
-  - Ticket managment - [ ] \
+* Authentication - [x] 
+* Client web Dashboard - [ ] 
+* CRUD Functionality - [ ] 
+  - Assigning users to projects - [ ] 
+  - Project managment - [ ] 
+  - Ticket managment - [ ] 
   - Personal Feed - [ ] 
 
 
 ## Tech 
-* Typescript \
-* React \
-* Golang \
+* Typescript 
+* React 
+* Golang 
 * MongoDB
