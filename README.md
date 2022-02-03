@@ -9,11 +9,11 @@ Created using React/Golang
   -Assigning users to projects - [ ] \
   -Project managment - [ ] \
   -Ticket managment - [ ] \
-  -Personal Feed - [ ] \
+  -Personal Feed - [ ] 
 
 
 ## Tech 
--Typescript
--React
--Golang
+-Typescript \
+-React \ 
+-Golang \ 
 -MongoDB
