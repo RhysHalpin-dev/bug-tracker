@@ -8,6 +8,7 @@ import (
 
 	"github.com/RhysHalpin-dev/bug-tracker-api/model"
 	"go.mongodb.org/mongo-driver/bson"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func GetWelcome(w http.ResponseWriter, r *http.Request) {
@@ -16,6 +17,16 @@ func GetWelcome(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(welcome)
 
+}
+
+/*
+ *Compare the users input password the
+ * hashed version stored on DB
+ *
+ */
+func CheckPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -51,8 +62,12 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		bsonBytes, _ := bson.Marshal(result)
 		bson.Unmarshal(bsonBytes, &result1)
 
-		//compare user given password and retrieved result password
-		if user.Password != result1.Password {
+		//compare password to hashed password
+		match := CheckPasswordHash(user.Password, result1.Password)
+		fmt.Println(match)
+
+		//compare user given password and retrieved result password //demopassword123
+		if !match {
 			status := model.Status{Message: "Auth unSuccessful", Status: 404}
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
