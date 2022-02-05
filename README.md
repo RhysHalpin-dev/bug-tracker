@@ -12,6 +12,9 @@ Created using React/Golang
   - Ticket managment - [ ] 
   - Personal Feed - [ ] 
 
+* Websockets
+  - Feed
+  - notifications
 
 ## Tech 
 * Typescript 
