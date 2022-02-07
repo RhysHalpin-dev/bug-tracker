@@ -34,11 +34,12 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var result bson.M
 	var result1 model.Login
 
-	decoder := json.NewDecoder(r.Body)
 	// parse and decode request body into Login struct // throw error if not possible
+	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&user)
 
 	if err != nil { // if JSON is not correctly formated BAD REQUEST
+		fmt.Println("Error: ", err)
 		status := model.Status{Message: "Bad Request", Status: 400}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -68,9 +69,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		//compare user given password and retrieved result password //demopassword123
 		if !match {
-			status := model.Status{Message: "Auth unSuccessful", Status: 404}
+			status := model.Status{Message: "Auth unSuccessful", Status: 401}
 			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusBadRequest)
+			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(status)
 
 		} else { // Clean request no error
