@@ -5,17 +5,36 @@ import { useNavigate } from 'react-router-dom';
 const Login: React.FC = () => {
   const [user, setUser] = useState('');
   const [pass, setPass] = useState('');
+  const [loginError, setLogginError] = useState('');
   let navigate = useNavigate();
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     console.log(user + ' ' + pass);
-    navigate('./dashboard', { replace: true });
-    return (
-      <div>
-        ${user}${pass}
-      </div>
-    );
+    // POST login credentials to API login endpoint
+    try {
+      const res = await fetch('http://localhost:8000/api/auth/Login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: user,
+          password: pass,
+        }),
+      });
+      const data = await res.json();
+
+      console.log(data);
+
+      if (data.status === 200) {
+        navigate('./dashboard', { replace: true });
+      } else {
+        setLogginError('Incorrect login credentials, please try again');
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
   return (
     <LoginContainer>
@@ -41,6 +60,7 @@ const Login: React.FC = () => {
             onChange={(e) => setPass(e.target.value)}
           />
         </div>
+        <p id="errorMessage">{loginError}</p>
         <input type="submit" value="Login" />
         <p>
           Forgot your <a href="">password?</a>
@@ -84,7 +104,15 @@ const LoginForm = styled.form`
   p {
     margin: 0px;
   }
-
+  #errorMessage {
+    color: red;
+    padding: 5px;
+    border: solid 1px blue;
+    border-radius: 15px;
+    background-color: grey;
+    opacity: 1;
+    transition: all 5s;
+  }
   div {
     display: flex;
     flex-direction: row;
