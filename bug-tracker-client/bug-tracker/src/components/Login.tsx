@@ -8,7 +8,7 @@ const Login: React.FC = () => {
   const [loginError, setLogginError] = useState('');
   let navigate = useNavigate();
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(user + ' ' + pass);
     // POST login credentials to API login endpoint
@@ -27,7 +27,7 @@ const Login: React.FC = () => {
 
       console.log(data);
 
-      if (data.status === 200) {
+      if (res.status === 200) {
         navigate('./dashboard', { replace: true });
       } else {
         setLogginError('Incorrect login credentials, please try again');
