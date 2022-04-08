@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
+	github.com/joho/godotenv v1.4.0
 	go.mongodb.org/mongo-driver v1.8.3
 	golang.org/x/crypto v0.0.0-20220131195533-30dcbda58838
 )

@@ -4,16 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-const connectionString = "mongodb+srv://adminUser:%40205043319rR@cluster0.wdlwx.mongodb.net/golangAPI?retryWrites=true&w=majority"
-const dbName = "golangAPI"
-const colName = "users"
 
 //IMPORTANT
 var collection *mongo.Collection
@@ -25,8 +23,19 @@ func Test() {
 	time.Sleep(2 * time.Second)
 }
 func init() {
+	EnvErr := godotenv.Load("./config/.env")
+
+	if EnvErr != nil {
+		fmt.Println("could not load .env file")
+		os.Exit(1)
+	}
+
+	dbName := os.Getenv("DBNAME")
+	colName := os.Getenv("COLNAME")
+	connString := os.Getenv("CONNSTRING")
+
 	//client options
-	clientOptions := options.Client().ApplyURI(connectionString)
+	clientOptions := options.Client().ApplyURI(connString)
 
 	//connect to mongoDB // pass conext on connection // usingg client option settings
 	client, err := mongo.Connect(context.TODO(), clientOptions)

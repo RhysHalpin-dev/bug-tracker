@@ -1,15 +1,24 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/RhysHalpin-dev/bug-tracker-api/controller"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
 
 func main() {
 
+	EnvErr := godotenv.Load("./config/.env")
+
+	if EnvErr != nil {
+		fmt.Println("could not load .env file")
+		os.Exit(1)
+	}
 	//Init Router
 
 	r := mux.NewRouter()
@@ -25,5 +34,5 @@ func main() {
 	s.Use(mux.CORSMethodMiddleware(s))
 
 	// Init Listener
-	http.ListenAndServe(":8000", handlers.CORS(headers, methods, origins)(r))
+	http.ListenAndServe(os.Getenv("GOPORT"), handlers.CORS(headers, methods, origins)(r))
 }

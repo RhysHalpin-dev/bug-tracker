@@ -32,7 +32,7 @@ func CheckPasswordHash(password, hash string) bool {
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var user model.Login
 	var result bson.M
-	var result1 model.Login
+	var convertedResult model.Login
 
 	// parse and decode request body into Login struct // throw error if not possible
 	decoder := json.NewDecoder(r.Body)
@@ -50,7 +50,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		//retrieve document matching the users email
 		filter := bson.M{"email": user.Email}
 		err := collection.FindOne(context.TODO(), filter).Decode(&result)
-		fmt.Println(result)
+		fmt.Println("Found user document: ", result)
 		// log error if retrival is unsuccessful
 		if err != nil {
 			status := model.Status{Message: "Bad Request", Status: 400}
@@ -61,11 +61,11 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		//convert retrieved mongoDB bson to Login struct
 		bsonBytes, _ := bson.Marshal(result)
-		bson.Unmarshal(bsonBytes, &result1)
+		bson.Unmarshal(bsonBytes, &convertedResult)
 
 		//compare password to hashed password
-		match := CheckPasswordHash(user.Password, result1.Password)
-		fmt.Println(match)
+		match := CheckPasswordHash(user.Password, convertedResult.Password)
+		fmt.Println("Password correct? ", match)
 
 		//compare user given password and retrieved result password //demopassword123
 		if !match {
