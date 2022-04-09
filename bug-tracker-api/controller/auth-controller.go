@@ -5,8 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/RhysHalpin-dev/bug-tracker-api/model"
+	"github.com/golang-jwt/jwt"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -29,10 +33,33 @@ func CheckPasswordHash(password, hash string) bool {
 	return err == nil
 }
 
+func generateToken(mongoUser bson.M) (tokenString string) {
+	//Load .env before router init
+	EnvErr := godotenv.Load("./config/.env")
+
+	if EnvErr != nil {
+		fmt.Println("could not load .env file")
+		os.Exit(1)
+	}
+	fmt.Println(os.Getenv("SECRETKEY"))
+	hmacSampleSecret := []byte(os.Getenv("SECRETKEY"))
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userName": mongoUser["email"].(string),
+		"admin":    mongoUser["admin"].(int32),
+		"iat":      time.Now().Unix(),
+		"exp":      time.Now().Add(time.Hour * 1).Unix(),
+	})
+	// Sign and get the complete encoded token as a string using the secret
+	tokenString, err := token.SignedString(hmacSampleSecret)
+	fmt.Println(tokenString, err)
+	return tokenString
+}
+
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var user model.Login
-	var result bson.M
-	var convertedResult model.Login
+	var mongoUser bson.M
+	//var convertedResult model.Login
 
 	// parse and decode request body into Login struct // throw error if not possible
 	decoder := json.NewDecoder(r.Body)
@@ -49,8 +76,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		//retrieve document matching the users email
 		filter := bson.M{"email": user.Email}
-		err := collection.FindOne(context.TODO(), filter).Decode(&result)
-		fmt.Println("Found user document: ", result)
+		err := collection.FindOne(context.TODO(), filter).Decode(&mongoUser)
+		fmt.Println("Found user document: ", mongoUser)
 		// log error if retrival is unsuccessful
 		if err != nil {
 			status := model.Status{Message: "Bad Request", Status: 400}
@@ -60,11 +87,11 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		//convert retrieved mongoDB bson to Login struct
-		bsonBytes, _ := bson.Marshal(result)
-		bson.Unmarshal(bsonBytes, &convertedResult)
+		//bsonBytes, _ := bson.Marshal(result)
+		//bson.Unmarshal(bsonBytes, &convertedResult)
 
 		//compare password to hashed password
-		match := CheckPasswordHash(user.Password, convertedResult.Password)
+		match := CheckPasswordHash(user.Password, mongoUser["password"].(string))
 		fmt.Println("Password correct? ", match)
 
 		//compare user given password and retrieved result password //demopassword123
@@ -75,11 +102,11 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			json.NewEncoder(w).Encode(status)
 
 		} else { // Clean request no error
-
+			jwtToken := generateToken(mongoUser)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			status := model.Status{Message: "Auth successful", Status: 200}
-			json.NewEncoder(w).Encode(status)
+			JwtRes := model.JwtRes{Message: "Auth successful", Status: 200, Token: jwtToken}
+			json.NewEncoder(w).Encode(JwtRes)
 
 		}
 	}

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
@@ -18,10 +17,6 @@ var collection *mongo.Collection
 
 //connect with mongoDB
 
-func Test() {
-	fmt.Println("testing import")
-	time.Sleep(2 * time.Second)
-}
 func init() {
 	EnvErr := godotenv.Load("./config/.env")
 

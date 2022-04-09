@@ -6,13 +6,14 @@ import (
 	"os"
 
 	"github.com/RhysHalpin-dev/bug-tracker-api/controller"
+	"github.com/RhysHalpin-dev/bug-tracker-api/routes"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-
+	//Load .env befor router init
 	EnvErr := godotenv.Load("./config/.env")
 
 	if EnvErr != nil {
@@ -29,9 +30,11 @@ func main() {
 
 	//Init Routes Welocome
 	r.HandleFunc("/", controller.GetWelcome).Methods("GET")
-	s := r.PathPrefix("/api/auth").Subrouter()
-	s.HandleFunc("/Login", controller.LoginHandler).Methods("POST")
-	s.Use(mux.CORSMethodMiddleware(s))
+	//Create Authenticaion and Authorization endpoint
+	s := r.PathPrefix("/apiv1/auth").Subrouter()
+	// Pass above subrouter to routes handler
+	routes.AuthRouteHandler(s)
+	//r.Use(mux.CORSMethodMiddleware(s))
 
 	// Init Listener
 	http.ListenAndServe(os.Getenv("GOPORT"), handlers.CORS(headers, methods, origins)(r))

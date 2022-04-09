@@ -13,7 +13,7 @@ const Login: React.FC = () => {
     console.log(user + ' ' + pass);
     // POST login credentials to API login endpoint
     try {
-      const res = await fetch('http://localhost:8000/api/auth/Login', {
+      const res = await fetch('http://localhost:8000/apiv1/auth/Login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
