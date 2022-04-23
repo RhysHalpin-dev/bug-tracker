@@ -6,5 +6,5 @@ import (
 )
 
 func AuthRouteHandler(r *mux.Router) {
-	r.HandleFunc("/Login", controller.LoginHandler).Methods("POST")
+	r.HandleFunc("/auth/Login", controller.LoginHandler).Methods("POST")
 }

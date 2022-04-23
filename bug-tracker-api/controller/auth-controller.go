@@ -10,7 +10,6 @@ import (
 
 	"github.com/RhysHalpin-dev/bug-tracker-api/model"
 	"github.com/golang-jwt/jwt"
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -33,17 +32,13 @@ func CheckPasswordHash(password, hash string) bool {
 	return err == nil
 }
 
+/*
+	Generate a JWT Token uisng user data
+*/
 func generateToken(mongoUser bson.M) (tokenString string) {
-	//Load .env before router init
-	EnvErr := godotenv.Load("./config/.env")
 
-	if EnvErr != nil {
-		fmt.Println("could not load .env file")
-		os.Exit(1)
-	}
-	fmt.Println(os.Getenv("SECRETKEY"))
-	hmacSampleSecret := []byte(os.Getenv("SECRETKEY"))
-
+	hmacSecretKey := []byte(os.Getenv("SECRETKEY"))
+	//create new token and claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userName": mongoUser["email"].(string),
 		"admin":    mongoUser["admin"].(int32),
@@ -51,9 +46,28 @@ func generateToken(mongoUser bson.M) (tokenString string) {
 		"exp":      time.Now().Add(time.Hour * 1).Unix(),
 	})
 	// Sign and get the complete encoded token as a string using the secret
-	tokenString, err := token.SignedString(hmacSampleSecret)
+	tokenString, err := token.SignedString(hmacSecretKey)
 	fmt.Println(tokenString, err)
+	AuthorizationJwt(tokenString)
 	return tokenString
+
+}
+
+func AuthorizationJwt(jwtToken string) {
+	hmacSecretKey := []byte(os.Getenv("SECRETKEY"))
+	token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (interface{}, error) {
+
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
+		return hmacSecretKey, nil
+	})
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		fmt.Println(claims["userName"], claims["admin"])
+	} else {
+		fmt.Println(err)
+	}
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {

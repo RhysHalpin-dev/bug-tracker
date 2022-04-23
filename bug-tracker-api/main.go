@@ -12,7 +12,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func main() {
+func init() {
 	//Load .env befor router init
 	EnvErr := godotenv.Load("./config/.env")
 
@@ -20,6 +20,8 @@ func main() {
 		fmt.Println("could not load .env file")
 		os.Exit(1)
 	}
+}
+func main() {
 	//Init Router
 
 	r := mux.NewRouter()
@@ -31,7 +33,7 @@ func main() {
 	//Init Routes Welocome
 	r.HandleFunc("/", controller.GetWelcome).Methods("GET")
 	//Create Authenticaion and Authorization endpoint
-	s := r.PathPrefix("/apiv1/auth").Subrouter()
+	s := r.PathPrefix("/apiv1/").Subrouter()
 	// Pass above subrouter to routes handler
 	routes.AuthRouteHandler(s)
 	//r.Use(mux.CORSMethodMiddleware(s))
