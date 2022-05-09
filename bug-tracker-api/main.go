@@ -36,6 +36,7 @@ func main() {
 	s := r.PathPrefix("/apiv1/").Subrouter()
 	// Pass above subrouter to routes handler
 	routes.AuthRouteHandler(s)
+	routes.ProfileRouteHandler(s)
 	//r.Use(mux.CORSMethodMiddleware(s))
 
 	// Init Listener
