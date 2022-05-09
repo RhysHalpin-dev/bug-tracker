@@ -11,6 +11,7 @@ import (
 	"github.com/RhysHalpin-dev/bug-tracker-api/model"
 	"github.com/golang-jwt/jwt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -40,10 +41,10 @@ func generateToken(mongoUser bson.M) (tokenString string) {
 	hmacSecretKey := []byte(os.Getenv("SECRETKEY"))
 	//create new token and claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userName": mongoUser["email"].(string),
-		"admin":    mongoUser["admin"].(int32),
-		"iat":      time.Now().Unix(),
-		"exp":      time.Now().Add(time.Hour * 1).Unix(),
+		"client_id": mongoUser["_id"].(primitive.ObjectID),
+		"email":     mongoUser["email"].(string),
+		"iat":       time.Now().Unix(),
+		"exp":       time.Now().Add(time.Hour * 1).Unix(),
 	})
 	// Sign and get the complete encoded token as a string using the secret
 	tokenString, err := token.SignedString(hmacSecretKey)
@@ -67,6 +68,43 @@ func AuthorizationJwt(jwtToken string) {
 		fmt.Println(claims["userName"], claims["admin"])
 	} else {
 		fmt.Println(err)
+	}
+}
+
+func ProfileHandler(w http.ResponseWriter, r *http.Request) {
+	var UserObject model.UserObject
+	var mongoUser bson.M
+
+	// parse and decode request body into Login struct // throw error if not possible
+	fmt.Println("body", r.Body)
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&UserObject)
+	fmt.Println(UserObject)
+
+	if err != nil {
+
+		//retrieve document matching the users email
+		objectID, _ := primitive.ObjectIDFromHex(UserObject.UserObject)
+
+		filter := bson.M{"_id": objectID}
+		err := collection.FindOne(context.TODO(), filter).Decode(&mongoUser)
+
+		println(mongoUser)
+
+		fmt.Println("Found user document: ", mongoUser)
+
+		if err != nil {
+			fmt.Println("Error: ", err)
+			status := model.Status{Message: "Bad Request", Status: 400}
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(status)
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			Profile := model.Profile{Email: mongoUser["email"].(string), Name: mongoUser["name"].(string), Bio: mongoUser["bio"].(string)}
+			json.NewEncoder(w).Encode(Profile)
+		}
 	}
 }
 
