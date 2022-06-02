@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/RhysHalpin-dev/bug-tracker-api/controller"
-	"github.com/RhysHalpin-dev/bug-tracker-api/routes"
+	"github.com/RhysHalpin-dev/bug-tracker/bug-tracker-api/cmd/controller"
+	"github.com/RhysHalpin-dev/bug-tracker/bug-tracker-api/cmd/routes"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
