@@ -1,7 +1,13 @@
 import styled from 'styled-components';
+import FeedEntry from './FeedEntry';
 
 const Feed: React.FC = () => {
-  return <Container>Feed</Container>;
+  return (
+    <Container>
+      Feed
+      <FeedEntry></FeedEntry>
+    </Container>
+  );
 };
 
 export default Feed;

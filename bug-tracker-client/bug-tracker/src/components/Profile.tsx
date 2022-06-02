@@ -1,9 +1,11 @@
 import styled from 'styled-components';
-
+import { useState, useContext, useEffect } from 'react';
+import { UserContext } from '../context/userContext';
 interface ProfileDetails {
   name?: string;
+  email?: string;
   img?: string;
-  description?: string;
+  bio?: string;
   contact?: string;
   admin?: boolean;
 }
@@ -20,15 +22,43 @@ const profiles = [
 ];
 
 const Profile: React.FC<ProfileDetails> = () => {
+  const { state, actions } = useContext(UserContext);
+  console.log(state.user.client_id);
+
+  const [data, setData] = useState<ProfileDetails>();
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const res = await fetch('http://localhost:8000/apiv1/auth/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userObject: state.user.client_id,
+        }),
+      });
+      const data = await res.json();
+      console.log(data);
+      setData(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <Container>
       <h2>Profile</h2>
 
       <img src={profiles[0].img} alt="profileImg" />
-      <p>{profiles[0].name}</p>
-      <p>{profiles[0].description}</p>
+      <p>{data?.name}</p>
+      <p>{data?.bio}</p>
       <p>Role: {profiles[0].admin === true ? 'Admin' : 'Engineer'}</p>
-      <p>{profiles[0].contact}</p>
+      <p>{data?.email}</p>
       <button>Edit Profile</button>
     </Container>
   );

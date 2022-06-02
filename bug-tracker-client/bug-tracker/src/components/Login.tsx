@@ -1,6 +1,8 @@
 import styled from 'styled-components';
-import { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../context/userContext';
+import jwtDecode, { JwtPayload } from 'jwt-decode';
 
 const Login: React.FC = () => {
   const [user, setUser] = useState('');
@@ -8,12 +10,14 @@ const Login: React.FC = () => {
   const [loginError, setLogginError] = useState('');
   let navigate = useNavigate();
 
+  const { state, actions } = useContext(UserContext);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(user + ' ' + pass);
     // POST login credentials to API login endpoint
     try {
-      const res = await fetch('http://localhost:8000/apiv1/auth/Login', {
+      const res = await fetch('http://localhost:8000/apiv1/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,6 +30,12 @@ const Login: React.FC = () => {
       const data = await res.json();
 
       console.log(data);
+      console.log(data.token);
+      console.log(state);
+      const token: string = data.token;
+      const decoded = jwtDecode<JwtPayload>(token);
+      actions.setUser(decoded);
+      console.log(decoded);
 
       if (res.status === 200) {
         navigate('./dashboard', { replace: true });
@@ -34,7 +44,16 @@ const Login: React.FC = () => {
       }
     } catch (err) {
       console.log(err);
+      setLogginError(String(err));
     }
+  };
+
+  const onChangeUser = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUser(e.target.value);
+  };
+
+  const onChangePass = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPass(e.target.value);
   };
   return (
     <LoginContainer>
@@ -47,7 +66,7 @@ const Login: React.FC = () => {
             name="userName"
             placeholder="Username"
             required
-            onChange={(e) => setUser(e.target.value)}
+            onChange={onChangeUser}
           />
         </div>
         <div>
@@ -57,7 +76,7 @@ const Login: React.FC = () => {
             name="password"
             placeholder="Password"
             required
-            onChange={(e) => setPass(e.target.value)}
+            onChange={onChangePass}
           />
         </div>
         <p id="errorMessage">{loginError}</p>

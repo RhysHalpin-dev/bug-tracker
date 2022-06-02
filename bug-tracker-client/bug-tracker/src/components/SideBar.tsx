@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 const SideBar: React.FC = () => {
@@ -7,16 +8,16 @@ const SideBar: React.FC = () => {
       <h1>WELCOME USER!</h1>
       <ul>
         <li>
-          <a href="http://localhost:3000/dashboard">Dashboard</a>
+          <Link to="dashIndex">Dashboard</Link>
         </li>
         <li>
-          <a href="#">My Tickets</a>
+          <Link to="dashTickets">My Tickets</Link>
         </li>
         <li>
-          <a href="#">My Projects</a>
+          <Link to="dashProjects">My Projects</Link>
         </li>
         <li>
-          <a href="#">History</a>
+          <Link to="history">History</Link>
         </li>
       </ul>
     </Container>
