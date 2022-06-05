@@ -35,8 +35,8 @@ func main() {
 	//Create Authenticaion and Authorization endpoint
 	s := r.PathPrefix("/apiv1/").Subrouter()
 	// Pass above subrouter to routes handler
-	routes.AuthRouteHandler(s)
-	routes.ProfileRouteHandler(s)
+	routes.LoginRouteHandler(s)
+	routes.ProtectedRouteHandler(s)
 	//r.Use(mux.CORSMethodMiddleware(s))
 
 	// Init Listener

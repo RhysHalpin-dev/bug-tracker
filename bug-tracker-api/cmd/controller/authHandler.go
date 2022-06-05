@@ -1,10 +1,14 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
+	"strings"
 	"time"
 
+	"github.com/RhysHalpin-dev/bug-tracker/bug-tracker-api/model"
 	"github.com/golang-jwt/jwt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -58,4 +62,51 @@ func AuthorizationJwt(jwtToken string) {
 	} else {
 		fmt.Println(err)
 	}
+}
+
+func AuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		// take jwt token from request
+		reqToken := r.Header.Get("Authorization")
+		jwtToken := strings.Split(reqToken, "Bearer")
+		// check token is split in 2
+		if len(jwtToken) != 2 {
+			status := model.Status{Message: "Bad Request", Status: 400}
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(status)
+		} else {
+			//store split token value after bearer
+			reqToken = strings.TrimSpace(jwtToken[1])
+			fmt.Println(reqToken)
+
+			hmacSecretKey := []byte(os.Getenv("SECRETKEY")) //jwt secret signing key stored in env
+
+			token, err := jwt.Parse(reqToken, func(token *jwt.Token) (interface{}, error) {
+
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+				}
+				// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
+				return hmacSecretKey, nil
+			})
+			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+				//generate valid action response
+				fmt.Println(claims["client_id"], claims["email"])
+				//call next handler
+				next.ServeHTTP(w, r)
+
+			} else {
+				// generate user not valid responce
+				fmt.Println(err)
+				status := model.Status{Message: "Bad Request", Status: 400}
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusBadRequest)
+				json.NewEncoder(w).Encode(status)
+				return
+			}
+		}
+	})
+
 }

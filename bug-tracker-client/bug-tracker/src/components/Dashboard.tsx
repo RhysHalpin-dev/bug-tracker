@@ -1,8 +1,6 @@
 import styled from 'styled-components';
-import Feed from './Feed';
-import Profile from './Profile';
 import SideBar from './SideBar';
-import { Routes, Route, Link, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
   return (

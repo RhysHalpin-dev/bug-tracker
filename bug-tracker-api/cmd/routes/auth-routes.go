@@ -5,10 +5,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func AuthRouteHandler(r *mux.Router) {
-	r.HandleFunc("/auth/login", controller.LoginHandler).Methods("POST")
+func LoginRouteHandler(r *mux.Router) {
+	r.HandleFunc("/login", controller.LoginHandler).Methods("POST")
 }
 
-func ProfileRouteHandler(r *mux.Router) {
-	r.HandleFunc("/auth/profile", controller.ProfileHandler).Methods("POST")
+func ProtectedRouteHandler(r *mux.Router) {
+	s := r.PathPrefix("/auth/").Subrouter()
+	s.Use(controller.AuthMiddleware)
+	s.HandleFunc("/profile", controller.ProfileHandler).Methods("POST")
 }
