@@ -14,3 +14,8 @@ func ProtectedRouteHandler(r *mux.Router) {
 	s.Use(controller.AuthMiddleware)
 	s.HandleFunc("/profile", controller.ProfileHandler).Methods("POST")
 }
+
+func GetProjects(r *mux.Router) {
+	r.HandleFunc("/myProjects", controller.MyProjectHandler).Methods("GET")
+
+}
