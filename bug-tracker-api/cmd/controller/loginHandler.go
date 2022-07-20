@@ -13,7 +13,6 @@ import (
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var user model.Login
 	var mongoUser bson.M
-	//var convertedResult model.Login
 
 	// parse and decode request body into Login struct // throw error if not possible
 	decoder := json.NewDecoder(r.Body)
@@ -30,7 +29,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		//retrieve document matching the users email
 		filter := bson.M{"email": user.Email}
-		err := collection.FindOne(context.TODO(), filter).Decode(&mongoUser)
+		err := userCollection.FindOne(context.TODO(), filter).Decode(&mongoUser)
 		fmt.Println("Found user document: ", mongoUser)
 		// log error if retrival is unsuccessful
 		if err != nil {

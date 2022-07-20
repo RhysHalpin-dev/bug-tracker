@@ -27,7 +27,7 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		objectID, _ := primitive.ObjectIDFromHex(UserObject.UserObject)
 
 		filter := bson.M{"_id": objectID}
-		err := collection.FindOne(context.TODO(), filter).Decode(&mongoUser)
+		err := userCollection.FindOne(context.TODO(), filter).Decode(&mongoUser)
 
 		fmt.Println("Found user document: ", mongoUser)
 
