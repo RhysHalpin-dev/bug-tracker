@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { useState, useContext, useEffect } from 'react';
 import { UserContext } from '../context/userContext';
+import jwtDecode, { JwtPayload } from 'jwt-decode';
 interface ProfileDetails {
   name?: string;
   email?: string;
@@ -23,7 +24,9 @@ const profiles = [
 
 const Profile: React.FC<ProfileDetails> = () => {
   const { state, actions } = useContext(UserContext);
+  const [loading, setLoading] = useState(true);
   console.log(state.user.client_id);
+  console.log(state);
 
   const [data, setData] = useState<ProfileDetails>();
 
@@ -33,16 +36,22 @@ const Profile: React.FC<ProfileDetails> = () => {
 
   const fetchProfile = async () => {
     try {
+      const token: string = state.user;
+      console.log(token);
+      const decoded = jwtDecode<JwtPayload>(token);
+      console.log(decoded.client_id);
       const res = await fetch('http://localhost:8000/apiv1/auth/profile', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          userObject: state.user.client_id,
+          userObject: decoded.client_id,
         }),
       });
       const data = await res.json();
+      setLoading(false);
       console.log(data);
       setData(data);
     } catch (err) {
@@ -53,13 +62,18 @@ const Profile: React.FC<ProfileDetails> = () => {
   return (
     <Container>
       <h2>Profile</h2>
-
-      <img src={profiles[0].img} alt="profileImg" />
-      <p>{data?.name}</p>
-      <p>{data?.bio}</p>
-      <p>Role: {profiles[0].admin === true ? 'Admin' : 'Engineer'}</p>
-      <p>{data?.email}</p>
-      <button>Edit Profile</button>
+      {loading ? (
+        'loading...'
+      ) : (
+        <Contents>
+          <img src={profiles[0].img} alt="profileImg" />
+          <p>{data?.name}</p>
+          <p>{data?.bio}</p>
+          <p>Role: {profiles[0].admin === true ? 'Admin' : 'Engineer'}</p>
+          <p>{data?.email}</p>
+          <button>Edit Profile</button>
+        </Contents>
+      )}
     </Container>
   );
 };
@@ -79,3 +93,4 @@ const Container = styled.div`
     border: solid 3px;
   }
 `;
+const Contents = styled.div``;

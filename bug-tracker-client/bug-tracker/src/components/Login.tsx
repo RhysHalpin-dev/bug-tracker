@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserContext } from '../context/userContext';
+import { UserContext, JwtContext } from '../context/userContext';
 import jwtDecode, { JwtPayload } from 'jwt-decode';
 
 const Login: React.FC = () => {
@@ -17,7 +17,7 @@ const Login: React.FC = () => {
     console.log(user + ' ' + pass);
     // POST login credentials to API login endpoint
     try {
-      const res = await fetch('http://localhost:8000/apiv1/auth/login', {
+      const res = await fetch('http://localhost:8000/apiv1/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -31,11 +31,12 @@ const Login: React.FC = () => {
 
       console.log(data);
       console.log(data.token);
-      console.log(state);
+
       const token: string = data.token;
-      const decoded = jwtDecode<JwtPayload>(token);
-      actions.setUser(decoded);
-      console.log(decoded);
+      console.log(token);
+      //const decoded = jwtDecode<JwtPayload>(token);
+      actions.setUser(token);
+      console.log(token);
 
       if (res.status === 200) {
         navigate('./dashboard', { replace: true });
